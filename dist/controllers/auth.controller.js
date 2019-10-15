@@ -21,14 +21,23 @@ exports.signup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         email: req.body.email,
         password: req.body.password,
     });
+    user.password = yield user.encryptPassword(user.password);
     const savedUser = yield user.save();
     //token
     const token = jsonwebtoken_1.default.sign({ _id: savedUser._id }, process.env.TOKEN_SECRET || 'tokentest');
-    res.json(token);
+    res.header('auth-token', token).json(savedUser);
 });
-exports.signin = (req, res) => {
+exports.signin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    //validate email
+    const user = yield User_1.default.findOne({ email: req.body.email });
+    if (!user)
+        return res.status(400).json('Email or password is wrong!');
+    //validate password
+    const correctPassword = yield user.validatePassword(req.body.password);
+    if (!correctPassword)
+        return res.status(400).json('Email or password is wrong!');
     res.send('Signin');
-};
+});
 exports.profile = (req, res) => {
     res.send('Profile');
 };
