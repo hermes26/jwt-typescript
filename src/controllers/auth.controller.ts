@@ -1,16 +1,19 @@
 import { Request, Response} from "express";
-import User, { IUser } from "../models/User"
+import User, { IUser } from "../models/User";
+import jwt from "jsonwebtoken";
 
 export const signup = async (req: Request, res: Response) => {
-    console.log(req.body);
+    //saving new user
     const user: IUser =  new User({
         username: req.body.username,
         email: req.body.email,
         password: req.body.password,
     })
     const savedUser = await user.save()
-    console.log(savedUser);
-    res.send('Signup');
+    
+    //token
+    const token: string = jwt.sign({_id: savedUser._id}, process.env.TOKEN_SECRET || 'tokentest')
+    res.json(token);
 
 }
 

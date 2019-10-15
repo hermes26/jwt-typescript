@@ -13,16 +13,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const User_1 = __importDefault(require("../models/User"));
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 exports.signup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(req.body);
+    //saving new user
     const user = new User_1.default({
         username: req.body.username,
         email: req.body.email,
         password: req.body.password,
     });
     const savedUser = yield user.save();
-    console.log(savedUser);
-    res.send('Signup');
+    //token
+    const token = jsonwebtoken_1.default.sign({ _id: savedUser._id }, process.env.TOKEN_SECRET || 'tokentest');
+    res.json(token);
 });
 exports.signin = (req, res) => {
     res.send('Signin');
