@@ -24,9 +24,14 @@ export const signin = async (req: Request, res: Response) => {
     
     //validate password
     const correctPassword: boolean = await user.validatePassword(req.body.password);
-    if(!correctPassword) return res.status(400).json('Email or password is wrong!')
+    if(!correctPassword) return res.status(400).json('Email or password is wrong!');
 
-    res.send('Signin');
+    //email and password correct -> generate token
+    const token: string = jwt.sign({_id: user._id}, process.env.TOKEN_SECRET || 'tokentest', {
+        expiresIn: 60 * 60 * 24
+    });
+
+    res.header('auth-token', token).json(user);
 
 }
 
